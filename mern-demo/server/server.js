@@ -9,7 +9,17 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors());
+// ===============================
+// Middleware
+// ===============================
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type"],
+  })
+);
+
 app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
@@ -19,7 +29,7 @@ const PORT = process.env.PORT || 5000;
 // ===============================
 app.get("/api/hello", (req, res) => {
   res.json({
-    message: "Backend MERN đang hoạt động!"
+    message: "Backend MERN đang hoạt động!",
   });
 });
 
@@ -30,11 +40,13 @@ app.get("/api/students", async (req, res) => {
   try {
     const students = await Student.find();
 
-    res.json(students);
+    res.status(200).json(students);
   } catch (error) {
+    console.error("GET students error:", error);
+
     res.status(500).json({
       message: "Lỗi khi lấy danh sách sinh viên",
-      error: error.message
+      error: error.message,
     });
   }
 });
@@ -46,17 +58,26 @@ app.post("/api/students", async (req, res) => {
   try {
     const { studentId, name, email } = req.body;
 
+    // Kiểm tra dữ liệu
+    if (!studentId || !name || !email) {
+      return res.status(400).json({
+        message: "Vui lòng nhập đầy đủ MSSV, Họ tên và Email",
+      });
+    }
+
     const student = await Student.create({
       studentId,
       name,
-      email
+      email,
     });
 
     res.status(201).json(student);
   } catch (error) {
+    console.error("POST students error:", error);
+
     res.status(400).json({
       message: "Lỗi khi thêm sinh viên",
-      error: error.message
+      error: error.message,
     });
   }
 });
@@ -66,26 +87,30 @@ app.post("/api/students", async (req, res) => {
 // ===============================
 app.put("/api/students/:id", async (req, res) => {
   try {
+    const { id } = req.params;
+
     const student = await Student.findByIdAndUpdate(
-      req.params.id,
+      id,
       req.body,
       {
         new: true,
-        runValidators: true
+        runValidators: true,
       }
     );
 
     if (!student) {
       return res.status(404).json({
-        message: "Không tìm thấy sinh viên"
+        message: "Không tìm thấy sinh viên",
       });
     }
 
-    res.json(student);
+    res.status(200).json(student);
   } catch (error) {
+    console.error("PUT students error:", error);
+
     res.status(400).json({
       message: "Lỗi khi cập nhật sinh viên",
-      error: error.message
+      error: error.message,
     });
   }
 });
@@ -95,22 +120,26 @@ app.put("/api/students/:id", async (req, res) => {
 // ===============================
 app.delete("/api/students/:id", async (req, res) => {
   try {
-    const student = await Student.findByIdAndDelete(req.params.id);
+    const { id } = req.params;
+
+    const student = await Student.findByIdAndDelete(id);
 
     if (!student) {
       return res.status(404).json({
-        message: "Không tìm thấy sinh viên"
+        message: "Không tìm thấy sinh viên",
       });
     }
 
-    res.json({
+    res.status(200).json({
       message: "Xóa sinh viên thành công",
-      student
+      student,
     });
   } catch (error) {
+    console.error("DELETE students error:", error);
+
     res.status(400).json({
       message: "Lỗi khi xóa sinh viên",
-      error: error.message
+      error: error.message,
     });
   }
 });
@@ -123,10 +152,12 @@ mongoose
   .then(() => {
     console.log("MongoDB Atlas connected successfully");
 
-    app.listen(PORT, () => {
+    // Quan trọng khi chạy Docker/Codespaces
+    app.listen(PORT, "0.0.0.0", () => {
       console.log(`Server running on port ${PORT}`);
     });
   })
   .catch((error) => {
     console.error("MongoDB connection error:", error);
+    process.exit(1);
   });
