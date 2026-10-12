@@ -1,27 +1,25 @@
-require("dotenv").config();
-
-const express = require("express");
-const mongoose = require("mongoose");
+const express = require('express');
+const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
 
-const PORT = process.env.PORT || 5000;
+// Cấu hình CORS cho phép Frontend Render truy cập
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  'http://localhost:5173',
+  'http://localhost:3000'
+];
 
-app.get("/api/hello", (req, res) => {
-  res.json({
-    message: "Hello from Backend!"
-  });
-});
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+      callback(null, true);
+    } else {
+      callback(null, true);
+    }
+  },
+  credentials: true
+}));
 
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log("MongoDB Atlas connected");
-
-    app.listen(PORT, () => {
-      console.log(`Server running at http://localhost:${PORT}`);
-    });
-  })
-  .catch((error) => {
-    console.error("MongoDB connection error:", error);
-  });
+app.use(express.json());

@@ -6,21 +6,25 @@ export default defineConfig({
 
   server: {
     host: "0.0.0.0",
+    allowedHosts: true,
     proxy: {
       "/api": {
-        target: "http://mern-backend:5000",
-        changeOrigin: true
+        target: "https://mern-backend-237451.onrender.com",
+        changeOrigin: true,
+        secure: false
       }
     }
   },
 
   preview: {
     host: "0.0.0.0",
-    port: 4173,
+    port: 5173,
+    allowedHosts: true,
     proxy: {
       "/api": {
-        target: "http://mern-backend:5000",
-        changeOrigin: true
+        target: "https://mern-backend-237451.onrender.com",
+        changeOrigin: true,
+        secure: false
       }
     }
   }

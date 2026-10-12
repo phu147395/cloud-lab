@@ -29,7 +29,11 @@ function App() {
     return "http://localhost:5000";
   };
 
-  const API_URL = getApiUrl();
+  const API_URL = (
+    window.__APP_CONFIG__?.apiUrl ||
+    import.meta.env.VITE_API_URL ||
+    getApiUrl()
+  ).replace(/\/+$/, "");
 
   // ==============================
   // Lấy danh sách sinh viên
