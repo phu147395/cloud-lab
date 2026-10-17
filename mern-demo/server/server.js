@@ -5,7 +5,10 @@ const mongoose = require("mongoose");
 
 const Student = require("./models/Student");
 
-dotenv.config({ override: false });
+const isRender = process.env.RENDER === "true";
+if (!isRender && process.env.NODE_ENV !== "production") {
+  dotenv.config({ override: false });
+}
 
 const app = express();
 
@@ -23,6 +26,14 @@ app.use(
 app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
+const mongoUri = process.env.MONGODB_URI;
+
+if (!mongoUri) {
+  console.error(
+    "MONGODB_URI is not set. Configure it in the deployment environment or local .env file."
+  );
+  process.exit(1);
+}
 
 app.get("/health", (req, res) => {
   res.status(200).json({
@@ -156,7 +167,7 @@ app.delete("/api/students/:id", async (req, res) => {
 // Kết nối MongoDB Atlas
 // ===============================
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(mongoUri)
   .then(() => {
     console.log("MongoDB Atlas connected successfully");
 
@@ -166,6 +177,16 @@ mongoose
     });
   })
   .catch((error) => {
+    if (
+      (error.code === 8000 && error.codeName === "AtlasError") ||
+      error.message?.includes("bad auth")
+    ) {
+      console.error(
+        "MongoDB Atlas authentication failed. Check the Database User credentials in MONGODB_URI and URL-encode special characters in the password."
+      );
+      process.exit(1);
+    }
+
     console.error("MongoDB connection error:", error);
     process.exit(1);
   });
