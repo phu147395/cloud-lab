@@ -8,3 +8,5 @@ build/
 *.log
 *.tmp
 __pycache__/
+git pull 
+origin main

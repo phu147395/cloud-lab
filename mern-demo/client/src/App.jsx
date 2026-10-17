@@ -11,36 +11,14 @@ function App() {
   // Sinh viên đang được sửa
   const [editingId, setEditingId] = useState(null);
 
-  // ==============================
-  // Địa chỉ Backend
-  // ==============================
-  const getApiUrl = () => {
-    const hostname = window.location.hostname;
-
-    // GitHub Codespaces
-    if (hostname.includes("-5173.app.github.dev")) {
-      return `https://${hostname.replace(
-        "-5173.app.github.dev",
-        "-5000.app.github.dev"
-      )}`;
-    }
-
-    // Chạy Local
-    return "http://localhost:5000";
-  };
-
-  const API_URL = (
-    window.__APP_CONFIG__?.apiUrl ||
-    import.meta.env.VITE_API_URL ||
-    getApiUrl()
-  ).replace(/\/+$/, "");
+  const API_BASE_PATH = "/api";
 
   // ==============================
   // Lấy danh sách sinh viên
   // ==============================
   const getStudents = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/students`);
+      const response = await fetch(`${API_BASE_PATH}/students`);
 
       if (!response.ok) {
         throw new Error("Không lấy được danh sách sinh viên");
@@ -77,7 +55,7 @@ function App() {
       // ==========================
       if (editingId) {
         const response = await fetch(
-          `${API_URL}/api/students/${editingId}`,
+          `${API_BASE_PATH}/students/${editingId}`,
           {
             method: "PUT",
             headers: {
@@ -113,7 +91,7 @@ function App() {
       // ==========================
       // THÊM MỚI
       // ==========================
-      const response = await fetch(`${API_URL}/api/students`, {
+      const response = await fetch(`${API_BASE_PATH}/students`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -179,7 +157,7 @@ function App() {
 
     try {
       const response = await fetch(
-        `${API_URL}/api/students/${id}`,
+        `${API_BASE_PATH}/students/${id}`,
         {
           method: "DELETE",
         }
@@ -216,6 +194,9 @@ function App() {
           <h1 style={styles.title}>Quản lý sinh viên</h1>
           <p style={styles.subtitle}>
             Hệ thống quản lý thông tin sinh viên
+          </p>
+          <p style={styles.version}>
+            Phiên bản 2.0 - Production Cloud PaaS (Auto-Deployed)
           </p>
         </div>
       </div>
@@ -457,8 +438,12 @@ function App() {
           🎓 Hệ thống quản lý sinh viên
         </p>
 
+        <p style={styles.version}>
+          Phiên bản 2.0 - Production Cloud PaaS (Auto-Deployed)
+        </p>
+
         <p>
-          Backend: {API_URL}
+          API: {API_BASE_PATH}
         </p>
       </div>
     </div>
@@ -514,6 +499,13 @@ const styles = {
     margin: "6px 0 0",
     color: "#64748b",
     fontSize: "15px",
+  },
+
+  version: {
+    margin: "6px 0 0",
+    color: "#64748b",
+    fontSize: "13px",
+    fontWeight: "600",
   },
 
   statsContainer: {

@@ -24,6 +24,14 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
 
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "UP",
+    timestamp: new Date(),
+    uptime: process.uptime(),
+  });
+});
+
 // ===============================
 // API kiểm tra Backend
 // ===============================
@@ -154,7 +162,7 @@ mongoose
 
     // Quan trọng khi chạy Docker/Codespaces
     app.listen(PORT, "0.0.0.0", () => {
-      console.log(`Server running on port ${PORT}`);
+      console.log(`Server MERN v1.2 Auto-Deployed successfully on port ${PORT}`);
     });
   })
   .catch((error) => {
