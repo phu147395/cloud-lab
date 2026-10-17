@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 
 const Student = require("./models/Student");
 
-dotenv.config();
+dotenv.config({ override: false });
 
 const app = express();
 
