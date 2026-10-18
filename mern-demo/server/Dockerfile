@@ -10,4 +10,6 @@ COPY . .
 
 EXPOSE 5000
 
+RUN rm -f .env .env.vault .env.keys
+
 CMD ["npm", "start"]
